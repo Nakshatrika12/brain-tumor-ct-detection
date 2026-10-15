@@ -7,8 +7,6 @@
   <meta name="theme-color" content="#101a30">
   <title>NeuroSight | Brain CT Research</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-
   <style>
     :root {
       --navy: #101a30;
@@ -18,8 +16,6 @@
       --text: #1d2939;
       --muted: #667085;
       --border: #e1e7f0;
-      --green: #16845b;
-      --red: #c43232;
     }
 
     * { box-sizing: border-box; }
@@ -28,8 +24,8 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Arial, sans-serif;
+      font-family: Inter, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     button, input { font: inherit; }
@@ -115,7 +111,12 @@
 
     .stat { padding: 20px; }
     .stat-label { color: var(--muted); font-size: 13px; }
-    .stat-value { display: block; font-size: 26px; font-weight: 750; margin-top: 10px; }
+    .stat-value {
+      display: block;
+      font-size: 26px;
+      font-weight: 750;
+      margin-top: 10px;
+    }
 
     .layout {
       display: grid;
@@ -149,7 +150,11 @@
       transition: .2s;
     }
 
-    .dropzone.dragover { background: #edf2ff; border-color: var(--blue); }
+    .dropzone.dragover {
+      background: #edf2ff;
+      border-color: var(--blue);
+    }
+
     .upload-icon { font-size: 36px; }
     .dropzone strong { font-size: 14px; }
     .dropzone small { color: var(--muted); line-height: 1.5; }
@@ -173,7 +178,13 @@
       margin-top: 15px;
     }
 
-    #fileInput { display: none; }
+    #fileInput {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
 
     .selected-files {
       margin-top: 15px;
@@ -222,6 +233,7 @@
       width: 0;
       background: var(--blue);
       border-radius: 10px;
+      transition: width .15s linear;
     }
 
     .progress-track.loading .progress-fill {
@@ -234,7 +246,12 @@
       100% { transform: translateX(350%); }
     }
 
-    .model-info { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .model-info {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
     .model-info h4 { margin: 0 0 12px; font-size: 13px; }
 
     .info-line {
@@ -246,7 +263,11 @@
     }
 
     .info-line span:first-child { color: var(--muted); }
-    .info-line span:last-child { text-align: right; font-weight: 650; overflow-wrap: anywhere; }
+    .info-line span:last-child {
+      text-align: right;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
 
     .results-header {
       display: flex;
@@ -257,30 +278,97 @@
       margin-bottom: 17px;
     }
 
-    .results-header p { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+    .results-header p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 6px 0 0;
+    }
 
-    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
 
-    table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
     thead { background: #f7f9fc; }
 
-    th, td { padding: 13px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    th { color: #58657b; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+    th, td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th {
+      color: #58657b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
     tbody tr:last-child td { border-bottom: 0; }
 
-    .file-cell { display: flex; align-items: center; gap: 10px; max-width: 220px; }
-    .thumbnail { width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: #eef2f8; flex-shrink: 0; }
-    .filename { overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+    .file-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 220px;
+    }
 
-    .pill { display: inline-block; border-radius: 30px; padding: 6px 9px; font-weight: 750; font-size: 11px; }
+    .thumbnail {
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #eef2f8;
+      flex-shrink: 0;
+    }
+
+    .filename {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 30px;
+      padding: 6px 9px;
+      font-weight: 750;
+      font-size: 11px;
+    }
+
     .pill.healthy { background: #e8f7ee; color: #17764f; }
     .pill.tumor { background: #ffeded; color: #b02e2e; }
     .pill.pending { background: #edf1f7; color: #58657b; }
 
-    .empty-state { padding: 45px 12px; text-align: center; color: var(--muted); }
+    .empty-state {
+      padding: 45px 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+
     .empty-icon { font-size: 35px; margin-bottom: 12px; }
-    .empty-state strong { display: block; color: var(--text); font-size: 14px; margin-bottom: 7px; }
-    .empty-state p { font-size: 12px; line-height: 1.6; margin: 0; }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 0;
+    }
 
     .notice {
       margin-top: 20px;
@@ -293,9 +381,18 @@
       line-height: 1.7;
     }
 
-    footer { text-align: center; color: #7c879a; font-size: 11px; line-height: 1.8; padding: 25px 10px 0; }
+    footer {
+      text-align: center;
+      color: #7c879a;
+      font-size: 11px;
+      line-height: 1.8;
+      padding: 25px 10px 0;
+    }
 
-    @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 560px) {
       .topbar { padding: 15px; }
       .brand h1 { font-size: 18px; }
@@ -306,6 +403,13 @@
       .stat-value { font-size: 22px; }
       .stat-label { font-size: 11px; }
       .panel { padding: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
@@ -368,7 +472,9 @@
                  accept="image/jpeg,image/png,image/webp" multiple>
         </div>
 
-        <div class="selected-files" id="selectedFiles">No images selected yet.</div>
+        <div class="selected-files" id="selectedFiles">
+          No images selected yet.
+        </div>
 
         <div class="button-row">
           <button class="button button-primary" id="run" type="button" disabled>
@@ -385,7 +491,9 @@
 
         <div class="status" id="status" role="status" aria-live="polite">
           <span class="status-dot"></span>
-          <span id="statusText">Initializing the AI model. You can select images while it loads.</span>
+          <span id="statusText">
+            The dashboard is ready. The AI runtime and model will load in the background.
+          </span>
         </div>
 
         <div class="model-info">
@@ -405,7 +513,8 @@
             <p>Individual results for each selected image.</p>
           </div>
           <div class="button-row" style="margin-top:0">
-            <button class="button button-secondary" id="export" type="button" disabled>Export CSV</button>
+            <button class="button button-secondary" id="export"
+                    type="button" disabled>Export CSV</button>
           </div>
         </div>
 
@@ -461,6 +570,8 @@
     let selectedImages = [];
     let results = [];
     let isAnalyzing = false;
+    let ortLoadingPromise = null;
+    let loadPromise = null;
 
     const $ = (id) => document.getElementById(id);
 
@@ -550,7 +661,10 @@
       if (!incoming.length) return;
 
       if (valid.length !== incoming.length) {
-        setStatus("Some files were skipped. Please choose JPG, PNG, or WEBP images.", "err");
+        setStatus(
+          "Some files were skipped. Please choose JPG, PNG, or WEBP images.",
+          "err"
+        );
       }
 
       const keys = new Set(selectedImages.map((x) => x.key));
@@ -583,7 +697,9 @@
       renderResults();
 
       if (!session) {
-        setStatus("Images selected. The model is loading; you can analyze them when it is ready.");
+        setStatus(
+          "Images selected. The model is loading; you can analyze them when it is ready."
+        );
       } else {
         setStatus("Images selected. The model is ready.", "ok");
       }
@@ -673,6 +789,38 @@
       });
     }
 
+    async function loadOrtRuntime() {
+      if (window.ort) return window.ort;
+      if (ortLoadingPromise) return ortLoadingPromise;
+
+      ortLoadingPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js";
+        script.async = true;
+
+        script.onload = () => {
+          if (window.ort) {
+            resolve(window.ort);
+          } else {
+            ortLoadingPromise = null;
+            reject(new Error("ONNX Runtime loaded but is unavailable."));
+          }
+        };
+
+        script.onerror = () => {
+          ortLoadingPromise = null;
+          reject(new Error(
+            "Could not load ONNX Runtime. Check your internet connection and retry."
+          ));
+        };
+
+        document.head.appendChild(script);
+      });
+
+      return ortLoadingPromise;
+    }
+
     async function downloadModelWithProgress() {
       const response = await fetch(MODEL_URL);
 
@@ -703,10 +851,13 @@
             `Downloading model: ${percent}% (${(received / 1048576).toFixed(0)} MB received)`
           );
         } else {
-          setStatus(`Downloading model: ${(received / 1048576).toFixed(0)} MB received`);
+          setStatus(
+            `Downloading model: ${(received / 1048576).toFixed(0)} MB received`
+          );
         }
       }
 
+      // Allocate one final buffer and copy each downloaded chunk once.
       const buffer = new ArrayBuffer(received);
       const output = new Uint8Array(buffer);
       let offset = 0;
@@ -744,11 +895,17 @@
       canvas.width = IMAGE_SIZE;
       canvas.height = IMAGE_SIZE;
 
-      const context = canvas.getContext("2d", { willReadFrequently: true });
+      const context = canvas.getContext("2d", {
+        willReadFrequently: true
+      });
+
       if (!context) throw new Error("Could not create image canvas.");
 
       context.drawImage(image, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
-      const pixels = context.getImageData(0, 0, IMAGE_SIZE, IMAGE_SIZE).data;
+      const pixels = context.getImageData(
+        0, 0, IMAGE_SIZE, IMAGE_SIZE
+      ).data;
+
       const plane = IMAGE_SIZE * IMAGE_SIZE;
       const data = new Float32Array(3 * plane);
 
@@ -759,7 +916,9 @@
         data[2 * plane + i] = pixels[p + 2] / 127.5 - 1;
       }
 
-      return new ort.Tensor("float32", data, [1, 3, IMAGE_SIZE, IMAGE_SIZE]);
+      return new ort.Tensor(
+        "float32", data, [1, 3, IMAGE_SIZE, IMAGE_SIZE]
+      );
     }
 
     async function analyzeOne(item, index) {
@@ -818,11 +977,15 @@
 
       try {
         for (let i = 0; i < selectedImages.length; i++) {
-          setStatus(`Analyzing image ${i + 1} of ${selectedImages.length}: ${selectedImages[i].file.name}`);
+          setStatus(
+            `Analyzing image ${i + 1} of ${selectedImages.length}: ${selectedImages[i].file.name}`
+          );
           await analyzeOne(selectedImages[i], i);
         }
 
-        const completed = results.filter((r) => r.status === "Complete").length;
+        const completed = results.filter(
+          (r) => r.status === "Complete"
+        ).length;
 
         setStatus(
           `Analysis finished. ${completed} of ${results.length} image(s) processed successfully. These are experimental research predictions.`,
@@ -837,19 +1000,26 @@
     }
 
     function exportCSV() {
-      const completed = results.filter((r) => r.status === "Complete");
+      const completed = results.filter(
+        (r) => r.status === "Complete"
+      );
 
       if (!completed.length) {
         setStatus("There are no completed predictions to export.");
         return;
       }
 
-      const headers = ["Image", "Prediction", "Healthy_Logit", "Tumor_Logit", "Status"];
+      const headers = [
+        "Image", "Prediction", "Healthy_Logit", "Tumor_Logit", "Status"
+      ];
+
       const rows = completed.map((r) => [
         r.name, r.prediction, r.healthyLogit, r.tumorLogit, r.status
       ]);
 
-      const escapeCSV = (v) => '"' + String(v ?? "").replaceAll('"', '""') + '"';
+      const escapeCSV = (v) =>
+        '"' + String(v ?? "").replaceAll('"', '""') + '"';
+
       const csv = [headers, ...rows]
         .map((row) => row.map(escapeCSV).join(","))
         .join("\r\n");
@@ -870,6 +1040,18 @@
     }
 
     async function loadModel() {
+      if (loadPromise) return loadPromise;
+
+      loadPromise = loadModelInternal();
+
+      try {
+        await loadPromise;
+      } finally {
+        loadPromise = null;
+      }
+    }
+
+    async function loadModelInternal() {
       session = null;
       $("modelState").textContent = "Loading";
       $("run").disabled = true;
@@ -882,9 +1064,8 @@
       let loadedFromCache = false;
 
       try {
-        if (!window.ort) {
-          throw new Error("ONNX Runtime Web did not load. Check your internet connection.");
-        }
+        setStatus("Loading the AI runtime in the background…");
+        await loadOrtRuntime();
 
         try {
           modelBuffer = await getCachedModel();
@@ -912,7 +1093,10 @@
             await cacheModel(modelBuffer);
             console.log("Model saved in browser storage for future visits.");
           } catch (error) {
-            console.warn("Could not cache the model. It can still run this session.", error);
+            console.warn(
+              "Could not cache the model. It can still run this session.",
+              error
+            );
           }
         }
 
@@ -930,7 +1114,8 @@
           throw new Error("Model input/output information is missing.");
         }
 
-        $("modelState").textContent = loadedFromCache ? "Ready (cached)" : "Ready";
+        $("modelState").textContent =
+          loadedFromCache ? "Ready (cached)" : "Ready";
 
         setStatus(
           loadedFromCache
@@ -942,7 +1127,11 @@
         console.error("Model loading failed:", error);
         session = null;
         $("modelState").textContent = "Load failed";
-        setStatus("Could not load the AI model. Refresh to retry. Details: " + error.message, "err");
+        setStatus(
+          "Could not load the AI model. Check your internet connection and retry. Details: " +
+          error.message,
+          "err"
+        );
       } finally {
         setLoadingAnimation(false);
         $("browse").disabled = false;
@@ -992,7 +1181,11 @@
     $("export").addEventListener("click", exportCSV);
 
     updateStats();
-    loadModel();
+
+    // Yield once so the browser can paint the dashboard before model setup.
+    requestAnimationFrame(() => {
+      setTimeout(loadModel, 0);
+    });
   </script>
 </body>
 </html>
