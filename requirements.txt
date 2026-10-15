@@ -1,1 +1,9 @@
 
+gradio
+pandas
+Pillow
+torch
+transformers
+huggingface_hub
+safetensors
+
