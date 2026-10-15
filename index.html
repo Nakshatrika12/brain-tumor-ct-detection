@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101a30">
   <title>NeuroSight | Brain CT Research</title>
 
@@ -12,17 +12,14 @@
   <style>
     :root {
       --navy: #101a30;
-      --navy-light: #192641;
       --blue: #4263eb;
-      --blue-light: #edf2ff;
       --bg: #f4f7fb;
-      --white: #ffffff;
+      --white: #fff;
       --text: #1d2939;
       --muted: #667085;
       --border: #e1e7f0;
       --green: #16845b;
       --red: #c43232;
-      --radius: 16px;
     }
 
     * { box-sizing: border-box; }
@@ -32,20 +29,12 @@
       background: var(--bg);
       color: var(--text);
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                   Roboto, Arial, sans-serif;
+        Roboto, Arial, sans-serif;
     }
 
     button, input { font: inherit; }
-
-    button {
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    button { cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
 
     .topbar {
       background: var(--navy);
@@ -57,11 +46,7 @@
       gap: 20px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .brand { display: flex; align-items: center; gap: 12px; }
 
     .brand-icon {
       display: grid;
@@ -73,17 +58,8 @@
       font-size: 22px;
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 21px;
-      letter-spacing: -0.5px;
-    }
-
-    .brand p {
-      margin: 4px 0 0;
-      color: #bdc9dd;
-      font-size: 12px;
-    }
+    .brand h1 { margin: 0; font-size: 21px; }
+    .brand p { margin: 4px 0 0; color: #bdc9dd; font-size: 12px; }
 
     .research-badge {
       border: 1px solid #53627b;
@@ -133,37 +109,23 @@
     .stat, .panel {
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 18px rgba(24, 39, 75, 0.035);
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(24,39,75,.035);
     }
 
     .stat { padding: 20px; }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .stat-value {
-      display: block;
-      font-size: 26px;
-      font-weight: 750;
-      margin-top: 10px;
-    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { display: block; font-size: 26px; font-weight: 750; margin-top: 10px; }
 
     .layout {
       display: grid;
-      grid-template-columns: 0.85fr 1.5fr;
+      grid-template-columns: .85fr 1.5fr;
       gap: 20px;
       align-items: start;
     }
 
     .panel { padding: 22px; min-width: 0; }
-
-    .panel h3 {
-      margin: 0;
-      font-size: 18px;
-    }
+    .panel h3 { margin: 0; font-size: 18px; }
 
     .panel-description {
       color: var(--muted);
@@ -184,22 +146,13 @@
       align-items: center;
       text-align: center;
       gap: 10px;
-      transition: 0.2s;
+      transition: .2s;
     }
 
-    .dropzone.dragover {
-      background: var(--blue-light);
-      border-color: var(--blue);
-    }
-
+    .dropzone.dragover { background: #edf2ff; border-color: var(--blue); }
     .upload-icon { font-size: 36px; }
-
     .dropzone strong { font-size: 14px; }
-
-    .dropzone small {
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .dropzone small { color: var(--muted); line-height: 1.5; }
 
     .button {
       border: 0;
@@ -209,23 +162,9 @@
       font-weight: 700;
     }
 
-    .button-primary {
-      background: var(--blue);
-      color: white;
-    }
-
-    .button-primary:hover:not(:disabled) {
-      background: #304ed0;
-    }
-
-    .button-secondary {
-      background: #edf1f7;
-      color: var(--text);
-    }
-
-    .button-secondary:hover:not(:disabled) {
-      background: #dfe6f1;
-    }
+    .button-primary { background: var(--blue); color: white; }
+    .button-primary:hover:not(:disabled) { background: #304ed0; }
+    .button-secondary { background: #edf1f7; color: var(--text); }
 
     .button-row {
       display: flex;
@@ -257,15 +196,8 @@
       overflow-wrap: anywhere;
     }
 
-    .status.ok {
-      background: #eaf8f0;
-      color: #176b49;
-    }
-
-    .status.err {
-      background: #fff0f0;
-      color: #a12828;
-    }
+    .status.ok { background: #eaf8f0; color: #176b49; }
+    .status.err { background: #fff0f0; color: #a12828; }
 
     .status-dot {
       flex: 0 0 auto;
@@ -302,16 +234,8 @@
       100% { transform: translateX(350%); }
     }
 
-    .model-info {
-      margin-top: 20px;
-      padding-top: 18px;
-      border-top: 1px solid var(--border);
-    }
-
-    .model-info h4 {
-      margin: 0 0 12px;
-      font-size: 13px;
-    }
+    .model-info { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .model-info h4 { margin: 0 0 12px; font-size: 13px; }
 
     .info-line {
       display: flex;
@@ -322,12 +246,7 @@
     }
 
     .info-line span:first-child { color: var(--muted); }
-
-    .info-line span:last-child {
-      text-align: right;
-      font-weight: 650;
-      overflow-wrap: anywhere;
-    }
+    .info-line span:last-child { text-align: right; font-weight: 650; overflow-wrap: anywhere; }
 
     .results-header {
       display: flex;
@@ -338,111 +257,30 @@
       margin-bottom: 17px;
     }
 
-    .results-header p {
-      color: var(--muted);
-      font-size: 12px;
-      margin: 6px 0 0;
-    }
+    .results-header p { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
 
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      text-align: left;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
     thead { background: #f7f9fc; }
 
-    th, td {
-      padding: 13px 12px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    th {
-      color: #58657b;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
+    th, td { padding: 13px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: #58657b; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
     tbody tr:last-child td { border-bottom: 0; }
 
-    .file-cell {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 220px;
-    }
+    .file-cell { display: flex; align-items: center; gap: 10px; max-width: 220px; }
+    .thumbnail { width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: #eef2f8; flex-shrink: 0; }
+    .filename { overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
 
-    .thumbnail {
-      width: 42px;
-      height: 42px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #eef2f8;
-      flex-shrink: 0;
-    }
+    .pill { display: inline-block; border-radius: 30px; padding: 6px 9px; font-weight: 750; font-size: 11px; }
+    .pill.healthy { background: #e8f7ee; color: #17764f; }
+    .pill.tumor { background: #ffeded; color: #b02e2e; }
+    .pill.pending { background: #edf1f7; color: #58657b; }
 
-    .filename {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 150px;
-    }
-
-    .pill {
-      display: inline-block;
-      border-radius: 30px;
-      padding: 6px 9px;
-      font-weight: 750;
-      font-size: 11px;
-    }
-
-    .pill.healthy {
-      background: #e8f7ee;
-      color: #17764f;
-    }
-
-    .pill.tumor {
-      background: #ffeded;
-      color: #b02e2e;
-    }
-
-    .pill.pending {
-      background: #edf1f7;
-      color: #58657b;
-    }
-
-    .empty-state {
-      padding: 45px 12px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .empty-state .empty-icon {
-      font-size: 35px;
-      margin-bottom: 12px;
-    }
-
-    .empty-state strong {
-      display: block;
-      color: var(--text);
-      font-size: 14px;
-      margin-bottom: 7px;
-    }
-
-    .empty-state p {
-      font-size: 12px;
-      line-height: 1.6;
-      margin: 0;
-    }
+    .empty-state { padding: 45px 12px; text-align: center; color: var(--muted); }
+    .empty-icon { font-size: 35px; margin-bottom: 12px; }
+    .empty-state strong { display: block; color: var(--text); font-size: 14px; margin-bottom: 7px; }
+    .empty-state p { font-size: 12px; line-height: 1.6; margin: 0; }
 
     .notice {
       margin-top: 20px;
@@ -455,18 +293,9 @@
       line-height: 1.7;
     }
 
-    footer {
-      text-align: center;
-      color: #7c879a;
-      font-size: 11px;
-      line-height: 1.8;
-      padding: 25px 10px 0;
-    }
+    footer { text-align: center; color: #7c879a; font-size: 11px; line-height: 1.8; padding: 25px 10px 0; }
 
-    @media (max-width: 850px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-
+    @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
     @media (max-width: 560px) {
       .topbar { padding: 15px; }
       .brand h1 { font-size: 18px; }
@@ -477,7 +306,6 @@
       .stat-value { font-size: 22px; }
       .stat-label { font-size: 11px; }
       .panel { padding: 16px; }
-      .results-header .button-row { margin-top: 0; }
     }
   </style>
 </head>
@@ -537,13 +365,10 @@
             Choose images
           </button>
           <input id="fileInput" type="file"
-                 accept="image/jpeg,image/png,image/webp"
-                 multiple>
+                 accept="image/jpeg,image/png,image/webp" multiple>
         </div>
 
-        <div class="selected-files" id="selectedFiles">
-          No images selected yet.
-        </div>
+        <div class="selected-files" id="selectedFiles">No images selected yet.</div>
 
         <div class="button-row">
           <button class="button button-primary" id="run" type="button" disabled>
@@ -560,33 +385,16 @@
 
         <div class="status" id="status" role="status" aria-live="polite">
           <span class="status-dot"></span>
-          <span id="statusText">
-            Initializing the AI model. You can select images while it loads.
-          </span>
+          <span id="statusText">Initializing the AI model. You can select images while it loads.</span>
         </div>
 
         <div class="model-info">
           <h4>Model information</h4>
-          <div class="info-line">
-            <span>Architecture</span>
-            <span>Vision Transformer (ViT)</span>
-          </div>
-          <div class="info-line">
-            <span>Input size</span>
-            <span>224 × 224</span>
-          </div>
-          <div class="info-line">
-            <span>Input type</span>
-            <span>Brain CT image</span>
-          </div>
-          <div class="info-line">
-            <span>Model format</span>
-            <span>ONNX</span>
-          </div>
-          <div class="info-line">
-            <span>Inference</span>
-            <span id="modelState">Loading</span>
-          </div>
+          <div class="info-line"><span>Architecture</span><span>Vision Transformer (ViT)</span></div>
+          <div class="info-line"><span>Input size</span><span>224 × 224</span></div>
+          <div class="info-line"><span>Input type</span><span>Brain CT image</span></div>
+          <div class="info-line"><span>Model format</span><span>ONNX</span></div>
+          <div class="info-line"><span>Inference</span><span id="modelState">Loading</span></div>
         </div>
       </div>
 
@@ -597,9 +405,7 @@
             <p>Individual results for each selected image.</p>
           </div>
           <div class="button-row" style="margin-top:0">
-            <button class="button button-secondary" id="export" type="button" disabled>
-              Export CSV
-            </button>
+            <button class="button button-secondary" id="export" type="button" disabled>Export CSV</button>
           </div>
         </div>
 
@@ -615,16 +421,13 @@
               </tr>
             </thead>
             <tbody id="resultsBody">
-              <tr>
-                <td colspan="5">
-                  <div class="empty-state">
-                    <div class="empty-icon">🔬</div>
-                    <strong>No results yet</strong>
-                    <p>Select CT images to get started. Predictions will be
-                      available once the model has loaded successfully.</p>
-                  </div>
-                </td>
-              </tr>
+              <tr><td colspan="5">
+                <div class="empty-state">
+                  <div class="empty-icon">🔬</div>
+                  <strong>No results yet</strong>
+                  <p>Select CT images to get started. Predictions will be available once the model has loaded successfully.</p>
+                </div>
+              </td></tr>
             </tbody>
           </table>
         </div>
@@ -635,8 +438,7 @@
       <strong>Research disclaimer:</strong> This website is an experimental
       academic research prototype. Its predictions are not a medical diagnosis
       and must not be used to make clinical decisions. Results may be incorrect.
-      Only qualified healthcare professionals can interpret medical images
-      and diagnose disease.
+      Only qualified healthcare professionals can interpret medical images and diagnose disease.
     </div>
 
     <footer>
@@ -652,6 +454,8 @@
       "https://huggingface.co/nakshatrika/brain-tumor-vit-ct/resolve/main/model.onnx";
 
     const IMAGE_SIZE = 224;
+    const MODEL_CACHE_NAME = "neurosight-model-cache-v1";
+    const MODEL_CACHE_KEY = "vit-brain-ct-model";
 
     let session = null;
     let selectedImages = [];
@@ -669,10 +473,7 @@
       const track = $("progressTrack");
       track.style.display = active ? "block" : "none";
       track.classList.toggle("loading", active);
-
-      if (!active) {
-        $("progressFill").style.width = "0%";
-      }
+      if (!active) $("progressFill").style.width = "0%";
     }
 
     function updateStats() {
@@ -690,11 +491,7 @@
     }
 
     function formatLogit(value) {
-      if (value === null || value === undefined ||
-          !Number.isFinite(value)) {
-        return "—";
-      }
-      return value.toFixed(5);
+      return Number.isFinite(value) ? value.toFixed(5) : "—";
     }
 
     function safeText(value) {
@@ -715,40 +512,29 @@
             <div class="empty-state">
               <div class="empty-icon">🔬</div>
               <strong>No results yet</strong>
-              <p>Select CT images to get started. Predictions will be available
-              once the model has loaded successfully.</p>
+              <p>Select CT images to get started. Predictions will be available once the model has loaded successfully.</p>
             </div>
           </td></tr>`;
         updateStats();
         return;
       }
 
-      body.innerHTML = results.map((result) => {
-        const badgeClass =
-          result.prediction === "Healthy" ? "healthy" :
-          result.prediction === "Tumor" ? "tumor" : "pending";
-
-        const predictionLabel = result.prediction || "Pending";
+      body.innerHTML = results.map((r) => {
+        const badgeClass = r.prediction === "Healthy" ? "healthy" :
+          r.prediction === "Tumor" ? "tumor" : "pending";
 
         return `
           <tr>
             <td>
               <div class="file-cell">
-                <img class="thumbnail"
-                     src="${result.previewUrl}"
-                     alt=""
-                     loading="lazy">
-                <span class="filename" title="${safeText(result.name)}">
-                  ${safeText(result.name)}
-                </span>
+                <img class="thumbnail" src="${r.previewUrl}" alt="" loading="lazy">
+                <span class="filename" title="${safeText(r.name)}">${safeText(r.name)}</span>
               </div>
             </td>
-            <td><span class="pill ${badgeClass}">
-              ${safeText(predictionLabel)}
-            </span></td>
-            <td>${formatLogit(result.healthyLogit)}</td>
-            <td>${formatLogit(result.tumorLogit)}</td>
-            <td>${safeText(result.status)}</td>
+            <td><span class="pill ${badgeClass}">${safeText(r.prediction || "Pending")}</span></td>
+            <td>${formatLogit(r.healthyLogit)}</td>
+            <td>${formatLogit(r.tumorLogit)}</td>
+            <td>${safeText(r.status)}</td>
           </tr>`;
       }).join("");
 
@@ -757,39 +543,28 @@
 
     function addFiles(fileList) {
       const incoming = Array.from(fileList || []);
-      const validFiles = incoming.filter((file) =>
-        ["image/jpeg", "image/png", "image/webp"].includes(file.type)
+      const valid = incoming.filter((f) =>
+        ["image/jpeg", "image/png", "image/webp"].includes(f.type)
       );
 
-      if (incoming.length === 0) return;
+      if (!incoming.length) return;
 
-      if (validFiles.length !== incoming.length) {
-        setStatus(
-          "Some files were skipped. Please choose JPG, PNG, or WEBP images.",
-          "err"
-        );
+      if (valid.length !== incoming.length) {
+        setStatus("Some files were skipped. Please choose JPG, PNG, or WEBP images.", "err");
       }
 
-      const existingKeys = new Set(
-        selectedImages.map((item) =>
-          `${item.file.name}_${item.file.size}_${item.file.lastModified}`
-        )
-      );
+      const keys = new Set(selectedImages.map((x) => x.key));
 
-      for (const file of validFiles) {
+      for (const file of valid) {
         const key = `${file.name}_${file.size}_${file.lastModified}`;
-
-        if (existingKeys.has(key)) continue;
-
-        const previewUrl = URL.createObjectURL(file);
+        if (keys.has(key)) continue;
 
         selectedImages.push({
           file,
-          previewUrl,
+          previewUrl: URL.createObjectURL(file),
           key
         });
-
-        existingKeys.add(key);
+        keys.add(key);
       }
 
       results = selectedImages.map((item) => ({
@@ -806,15 +581,11 @@
         : "No images selected yet.";
 
       renderResults();
-      updateStats();
 
-      if (validFiles.length > 0 && !session) {
-        setStatus(
-          "Images selected successfully. The model is still loading; " +
-          "you can upload images now and analyze them when it is ready."
-        );
-      } else if (session && selectedImages.length > 0) {
-        setStatus("Images selected. The model is ready when you are.", "ok");
+      if (!session) {
+        setStatus("Images selected. The model is loading; you can analyze them when it is ready.");
+      } else {
+        setStatus("Images selected. The model is ready.", "ok");
       }
     }
 
@@ -827,19 +598,125 @@
       selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
       selectedImages = [];
       results = [];
-
       $("fileInput").value = "";
       $("selectedFiles").textContent = "No images selected yet.";
-
       renderResults();
 
-      if (session) {
-        setStatus("All images cleared. Select images to begin.", "ok");
-      } else {
-        setStatus(
-          "All images cleared. You can upload images while the model loads."
-        );
+      setStatus(session
+        ? "All images cleared. Select images to begin."
+        : "All images cleared. You can upload images while the model loads.",
+        session ? "ok" : "");
+    }
+
+    function openModelDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("IndexedDB is unavailable"));
+          return;
+        }
+
+        const request = indexedDB.open(MODEL_CACHE_NAME, 1);
+
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains("models")) {
+            db.createObjectStore("models");
+          }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getCachedModel() {
+      const db = await openModelDatabase();
+
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("models", "readonly");
+        const request = tx.objectStore("models").get(MODEL_CACHE_KEY);
+
+        request.onsuccess = () => {
+          const value = request.result;
+          db.close();
+          resolve(value || null);
+        };
+
+        request.onerror = () => {
+          db.close();
+          reject(request.error);
+        };
+      });
+    }
+
+    async function cacheModel(buffer) {
+      const db = await openModelDatabase();
+
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("models", "readwrite");
+        tx.objectStore("models").put(buffer, MODEL_CACHE_KEY);
+
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+
+        tx.onerror = () => {
+          db.close();
+          reject(tx.error);
+        };
+
+        tx.onabort = () => {
+          db.close();
+          reject(tx.error || new Error("Model caching was aborted"));
+        };
+      });
+    }
+
+    async function downloadModelWithProgress() {
+      const response = await fetch(MODEL_URL);
+
+      if (!response.ok) {
+        throw new Error("Model download failed: HTTP " + response.status);
       }
+
+      if (!response.body || !response.body.getReader) {
+        return response.arrayBuffer();
+      }
+
+      const reader = response.body.getReader();
+      const chunks = [];
+      let received = 0;
+      const total = Number(response.headers.get("content-length")) || 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        chunks.push(value);
+        received += value.byteLength;
+
+        if (total > 0) {
+          const percent = Math.min(100, Math.round(received / total * 100));
+          $("progressFill").style.width = percent + "%";
+          setStatus(
+            `Downloading model: ${percent}% (${(received / 1048576).toFixed(0)} MB received)`
+          );
+        } else {
+          setStatus(`Downloading model: ${(received / 1048576).toFixed(0)} MB received`);
+        }
+      }
+
+      const buffer = new ArrayBuffer(received);
+      const output = new Uint8Array(buffer);
+      let offset = 0;
+
+      for (const chunk of chunks) {
+        output.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+
+      return buffer;
     }
 
     function loadImage(file) {
@@ -863,39 +740,26 @@
 
     async function imageToTensor(file) {
       const image = await loadImage(file);
-
       const canvas = document.createElement("canvas");
       canvas.width = IMAGE_SIZE;
       canvas.height = IMAGE_SIZE;
 
-      const context = canvas.getContext("2d", {
-        willReadFrequently: true
-      });
-
-      if (!context) {
-        throw new Error("Could not create a canvas for image preprocessing.");
-      }
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) throw new Error("Could not create image canvas.");
 
       context.drawImage(image, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+      const pixels = context.getImageData(0, 0, IMAGE_SIZE, IMAGE_SIZE).data;
+      const plane = IMAGE_SIZE * IMAGE_SIZE;
+      const data = new Float32Array(3 * plane);
 
-      const pixels = context.getImageData(
-        0, 0, IMAGE_SIZE, IMAGE_SIZE
-      ).data;
-
-      const planeSize = IMAGE_SIZE * IMAGE_SIZE;
-      const tensorData = new Float32Array(3 * planeSize);
-
-      for (let i = 0; i < planeSize; i++) {
-        const offset = i * 4;
-
-        tensorData[i] = pixels[offset] / 127.5 - 1;
-        tensorData[planeSize + i] = pixels[offset + 1] / 127.5 - 1;
-        tensorData[2 * planeSize + i] = pixels[offset + 2] / 127.5 - 1;
+      for (let i = 0; i < plane; i++) {
+        const p = i * 4;
+        data[i] = pixels[p] / 127.5 - 1;
+        data[plane + i] = pixels[p + 1] / 127.5 - 1;
+        data[2 * plane + i] = pixels[p + 2] / 127.5 - 1;
       }
 
-      return new ort.Tensor("float32", tensorData, [
-        1, 3, IMAGE_SIZE, IMAGE_SIZE
-      ]);
+      return new ort.Tensor("float32", data, [1, 3, IMAGE_SIZE, IMAGE_SIZE]);
     }
 
     async function analyzeOne(item, index) {
@@ -903,28 +767,21 @@
       renderResults();
 
       try {
-        const inputTensor = await imageToTensor(item.file);
-
-        const inputName = session.inputNames[0];
-        const outputName = session.outputNames[0];
-
+        const tensor = await imageToTensor(item.file);
         const output = await session.run({
-          [inputName]: inputTensor
+          [session.inputNames[0]]: tensor
         });
 
-        const logits = output[outputName].data;
+        const logits = output[session.outputNames[0]].data;
 
         if (!logits || logits.length < 2) {
-          throw new Error("The model returned an unexpected output.");
+          throw new Error("Unexpected model output.");
         }
 
-        const healthyLogit = Number(logits[0]);
-        const tumorLogit = Number(logits[1]);
-
-        results[index].healthyLogit = healthyLogit;
-        results[index].tumorLogit = tumorLogit;
+        results[index].healthyLogit = Number(logits[0]);
+        results[index].tumorLogit = Number(logits[1]);
         results[index].prediction =
-          tumorLogit > healthyLogit ? "Tumor" : "Healthy";
+          logits[1] > logits[0] ? "Tumor" : "Healthy";
         results[index].status = "Complete";
       } catch (error) {
         console.error("Image analysis failed:", item.file.name, error);
@@ -937,18 +794,16 @@
 
     async function runAnalysis() {
       if (!session) {
-        setStatus(
-          "The model has not finished loading. Please wait and try again."
-        );
+        setStatus("The model is still loading. Please wait before analyzing images.");
         return;
       }
 
-      if (isAnalyzing || selectedImages.length === 0) return;
+      if (isAnalyzing || !selectedImages.length) return;
 
       isAnalyzing = true;
-      $("run").disabled = true;
       $("browse").disabled = true;
       $("clear").disabled = true;
+      updateStats();
 
       results = selectedImages.map((item) => ({
         name: item.file.name,
@@ -960,26 +815,18 @@
       }));
 
       renderResults();
-      setStatus("Analyzing images with the Vision Transformer…");
 
       try {
         for (let i = 0; i < selectedImages.length; i++) {
-          setStatus(
-            `Analyzing image ${i + 1} of ${selectedImages.length}: ` +
-            selectedImages[i].file.name
-          );
-
+          setStatus(`Analyzing image ${i + 1} of ${selectedImages.length}: ${selectedImages[i].file.name}`);
           await analyzeOne(selectedImages[i], i);
         }
 
-        const completed = results.filter(
-          (result) => result.status === "Complete"
-        ).length;
+        const completed = results.filter((r) => r.status === "Complete").length;
 
         setStatus(
-          `Analysis finished. ${completed} of ${results.length} image(s) ` +
-          "processed successfully. These are experimental research predictions.",
-          completed > 0 ? "ok" : "err"
+          `Analysis finished. ${completed} of ${results.length} image(s) processed successfully. These are experimental research predictions.`,
+          completed ? "ok" : "err"
         );
       } finally {
         isAnalyzing = false;
@@ -990,34 +837,19 @@
     }
 
     function exportCSV() {
-      const completed = results.filter(
-        (result) => result.status === "Complete"
-      );
+      const completed = results.filter((r) => r.status === "Complete");
 
-      if (completed.length === 0) {
+      if (!completed.length) {
         setStatus("There are no completed predictions to export.");
         return;
       }
 
-      const headers = [
-        "Image",
-        "Prediction",
-        "Healthy_Logit",
-        "Tumor_Logit",
-        "Status"
-      ];
-
-      const rows = completed.map((result) => [
-        result.name,
-        result.prediction,
-        result.healthyLogit,
-        result.tumorLogit,
-        result.status
+      const headers = ["Image", "Prediction", "Healthy_Logit", "Tumor_Logit", "Status"];
+      const rows = completed.map((r) => [
+        r.name, r.prediction, r.healthyLogit, r.tumorLogit, r.status
       ]);
 
-      const escapeCSV = (value) =>
-        '"' + String(value ?? "").replaceAll('"', '""') + '"';
-
+      const escapeCSV = (v) => '"' + String(v ?? "").replaceAll('"', '""') + '"';
       const csv = [headers, ...rows]
         .map((row) => row.map(escapeCSV).join(","))
         .join("\r\n");
@@ -1028,7 +860,6 @@
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-
       link.href = url;
       link.download = "neurosight_ct_predictions.csv";
       document.body.appendChild(link);
@@ -1042,49 +873,76 @@
       session = null;
       $("modelState").textContent = "Loading";
       $("run").disabled = true;
-
-      // IMPORTANT: Image selection remains enabled during model loading.
       $("browse").disabled = false;
 
       setLoadingAnimation(true);
-      setStatus(
-        "Loading the AI model from Hugging Face. The first download may " +
-        "take a while because the model is approximately 327 MB."
-      );
+      $("progressFill").style.width = "0%";
+
+      let modelBuffer = null;
+      let loadedFromCache = false;
 
       try {
         if (!window.ort) {
-          throw new Error(
-            "ONNX Runtime Web did not load. Check your internet connection."
-          );
+          throw new Error("ONNX Runtime Web did not load. Check your internet connection.");
         }
 
-        setStatus("Downloading and initializing the Vision Transformer…");
+        try {
+          modelBuffer = await getCachedModel();
 
-        session = await ort.InferenceSession.create(MODEL_URL, {
+          if (modelBuffer instanceof ArrayBuffer && modelBuffer.byteLength > 0) {
+            loadedFromCache = true;
+            $("progressFill").style.width = "100%";
+            setStatus("Cached model found. Initializing the Vision Transformer…");
+          } else {
+            modelBuffer = null;
+          }
+        } catch (error) {
+          console.warn("Model cache unavailable; downloading instead.", error);
+        }
+
+        if (!modelBuffer) {
+          setStatus("Downloading the AI model for the first time…");
+          modelBuffer = await downloadModelWithProgress();
+
+          if (modelBuffer.byteLength === 0) {
+            throw new Error("The downloaded model file is empty.");
+          }
+
+          try {
+            await cacheModel(modelBuffer);
+            console.log("Model saved in browser storage for future visits.");
+          } catch (error) {
+            console.warn("Could not cache the model. It can still run this session.", error);
+          }
+        }
+
+        setStatus(
+          loadedFromCache
+            ? "Using cached model. Initializing the Vision Transformer…"
+            : "Download complete. Initializing the Vision Transformer…"
+        );
+
+        session = await ort.InferenceSession.create(modelBuffer, {
           executionProviders: ["wasm"]
         });
 
         if (!session.inputNames.length || !session.outputNames.length) {
-          throw new Error("The model input/output information is missing.");
+          throw new Error("Model input/output information is missing.");
         }
 
-        $("modelState").textContent = "Ready";
+        $("modelState").textContent = loadedFromCache ? "Ready (cached)" : "Ready";
+
         setStatus(
-          "Model loaded successfully! Select CT images and click Analyze images.",
+          loadedFromCache
+            ? "Model loaded from browser cache. Ready for image analysis!"
+            : "Model loaded successfully! The browser will attempt to reuse its cached copy on future visits.",
           "ok"
         );
       } catch (error) {
         console.error("Model loading failed:", error);
         session = null;
         $("modelState").textContent = "Load failed";
-
-        setStatus(
-          "The model could not load. You can still select images, but " +
-          "predictions require a successful model load. Details: " +
-          error.message,
-          "err"
-        );
+        setStatus("Could not load the AI model. Refresh to retry. Details: " + error.message, "err");
       } finally {
         setLoadingAnimation(false);
         $("browse").disabled = false;
