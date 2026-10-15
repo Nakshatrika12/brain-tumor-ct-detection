@@ -1,480 +1,569 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101a2c">
 <title>NeuroSight | Brain CT Research</title>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
 <style>
-:root{--navy:#101a2c;--ink:#17243a;--muted:#6d7b91;--line:#e4eaf2;--bg:#f4f7fb;--white:#fff;--blue:#4269e8;--blue2:#3155cd;--teal:#15a99a;--red:#c44f60;--green:#13866f;--shadow:0 12px 36px rgba(28,45,75,.08)}
+:root{
+  --navy:#101a2c;--blue:#4269e8;--teal:#15a99a;
+  --bg:#f4f7fb;--ink:#17243a;--muted:#6d7b91;
+  --line:#e4eaf2;--green:#13866f;--red:#c44f60;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-button,input{font:inherit}button{cursor:pointer}
-.topbar{min-height:72px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,64px);gap:18px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:750}
-.brandmark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#4e78f6,#27b5ad);display:grid;place-items:center}
-.brandmark svg{width:23px}
-.brand small{display:block;color:#aab8cf;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
-.topright{display:flex;align-items:center;gap:10px;color:#d5deec;font-size:12px}
-.live-dot{width:8px;height:8px;background:#40d3ae;border-radius:50%}
-.container{max-width:1200px;margin:auto;padding:34px 24px 50px}
-.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:26px}
-.eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:9px}
-.hero h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.045em;line-height:1.1;margin:0 0 10px}
-.hero p{margin:0;color:var(--muted);line-height:1.6;max-width:650px;font-size:14px}
-.research-pill{background:#e8f7f4;color:#117e72;border:1px solid #cdeee7;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:750}
-.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr);gap:20px;align-items:start}
-.card{background:white;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-.cardhead{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.topbar{background:var(--navy);color:white;padding:18px 5%;
+display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-size:21px;font-weight:800}
+.brand small{display:block;font-size:10px;color:#aab8cf;
+letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.top-status{font-size:12px;color:#d5deec}
+.dot{display:inline-block;width:8px;height:8px;background:#40d3ae;
+border-radius:50%;margin-right:7px}
+
+.container{max-width:1200px;margin:auto;padding:35px 22px}
+.hero{margin-bottom:25px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;
+color:var(--blue);text-transform:uppercase}
+h1{font-size:clamp(28px,4vw,40px);letter-spacing:-1.5px;margin:9px 0}
+.hero p{font-size:14px;line-height:1.7;color:var(--muted);max-width:700px}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.card{background:white;border:1px solid var(--line);border-radius:17px;
+box-shadow:0 12px 36px #1c2d4b0d;overflow:hidden}
+.cardhead{padding:20px;border-bottom:1px solid var(--line);
+display:flex;justify-content:space-between;align-items:center}
 .cardhead h2{font-size:15px;margin:0}
-.step{font-size:11px;font-weight:800;color:#7d8ba0;background:#f1f4f9;border-radius:7px;padding:6px 8px}
-.cardbody{padding:22px}
-.dropzone{border:1.5px dashed #c8d4e6;border-radius:15px;background:#f9fbfe;padding:30px 20px;text-align:center;transition:.2s}
+.step{background:#f1f4f9;color:#7d8ba0;padding:6px 8px;
+border-radius:7px;font-size:10px;font-weight:800}
+.cardbody{padding:20px}
+
+.dropzone{border:2px dashed #c8d4e6;border-radius:14px;
+padding:30px 15px;text-align:center;background:#f9fbfe;transition:.2s}
 .dropzone.drag{background:#eef3ff;border-color:var(--blue)}
-.upload-icon{margin:0 auto 13px;width:48px;height:48px;border-radius:14px;background:#eaf0ff;color:var(--blue);display:grid;place-items:center}
-.upload-icon svg{width:24px}
-.dropzone h3{font-size:15px;margin:0 0 7px}
-.dropzone p{font-size:12px;color:var(--muted);margin:0 0 17px;line-height:1.55}
-.btn{border:0;border-radius:10px;padding:11px 15px;font-size:12px;font-weight:750;transition:.15s}
-.btn-primary{background:var(--blue);color:white}
-.btn-primary:hover{background:var(--blue2)}
-.btn-secondary{background:#edf1f7;color:#34435a}
-.btn-outline{background:white;color:#34435a;border:1px solid var(--line)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+.upload-icon{font-size:30px;color:var(--blue);margin-bottom:12px}
+.dropzone h3{font-size:15px;margin:0 0 8px}
+.dropzone p{font-size:12px;line-height:1.7;color:var(--muted)}
 .fileinput{display:none}
-.file-summary{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;font-size:12px;color:var(--muted)}
-.file-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto}
-.fileitem{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
-.fileicon{width:34px;height:34px;display:grid;place-items:center;background:#f0f4fa;border-radius:8px;color:#536780;flex-shrink:0}
-.fileicon svg{width:18px}
-.filename{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.filesize{font-size:11px;color:var(--muted);margin-top:3px}
-.filemeta{min-width:0;flex:1}
-.filebadge{font-size:10px;font-weight:750;color:#4b6583;background:#eff4fb;border-radius:6px;padding:5px 7px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
-.statusbox{margin-top:16px;padding:12px 13px;border-radius:10px;background:#f4f7fb;color:#52647b;font-size:12px;line-height:1.55;display:flex;gap:10px;align-items:flex-start}
-.statusdot{width:8px;height:8px;background:#94a3b8;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+.btn{border:0;border-radius:9px;padding:11px 14px;
+font-size:12px;font-weight:750}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#34435a}
+.outline{background:white;border:1px solid var(--line);color:#34435a}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.file-summary{display:flex;justify-content:space-between;align-items:center;
+margin:18px 0 10px;font-size:12px;color:var(--muted)}
+.file-list{display:grid;gap:8px;max-height:220px;overflow:auto}
+.fileitem{display:flex;gap:10px;align-items:center;
+padding:10px;border:1px solid var(--line);border-radius:10px}
+.filemeta{flex:1;min-width:0}
+.filename{font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.filesize{font-size:11px;color:var(--muted);margin-top:4px}
+.filebadge{font-size:10px;background:#eff4fb;color:#4b6583;
+padding:5px 7px;border-radius:6px}
+
+.statusbox{margin-top:16px;padding:13px;border-radius:10px;
+background:#f4f7fb;color:#52647b;font-size:12px;line-height:1.6;
+display:flex;gap:10px;align-items:flex-start}
 .statusbox.ok{background:#eaf8f4;color:#147967}
-.statusbox.ok .statusdot{background:#18a68e}
 .statusbox.err{background:#fff0f1;color:#a83a4a}
+.statusdot{width:8px;height:8px;background:#94a3b8;border-radius:50%;
+flex-shrink:0;margin-top:5px}
+.statusbox.ok .statusdot{background:#18a68e}
 .statusbox.err .statusdot{background:#d45061}
-.progress-track{height:5px;border-radius:9px;background:#e8edf5;overflow:hidden;margin-top:12px;display:none}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .2s}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.stat{padding:13px;border-radius:12px;background:#f7f9fc}
-.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
-.stat-value{font-size:24px;font-weight:800;margin-top:5px}
-.stat-value.blue{color:var(--blue)}.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}
-.results-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 22px 0}
-.results-tools p{font-size:12px;color:var(--muted);margin:0}
-.tablewrap{overflow:auto;padding:10px 22px 22px}
-table{width:100%;border-collapse:collapse;min-width:440px}
-th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7b899d;font-weight:800;padding:12px 10px;border-bottom:1px solid var(--line)}
-td{font-size:12px;padding:13px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle}
-tbody tr:last-child td{border-bottom:0}
-.empty{text-align:center;padding:42px 16px!important;color:#8491a5;line-height:1.7}
-.pred{display:inline-flex;align-items:center;gap:6px;border-radius:7px;padding:6px 8px;font-weight:800;font-size:11px}
+
+.progress-track{height:6px;border-radius:10px;background:#e8edf5;
+overflow:hidden;margin-top:13px;display:none}
+.progress-fill{height:100%;width:0;
+background:linear-gradient(90deg,var(--blue),var(--teal));
+border-radius:10px}
+@keyframes loadingSweep{
+  0%{transform:translateX(-120%)}
+  100%{transform:translateX(350%)}
+}
+.progress-track.loading .progress-fill{
+  width:30%!important;
+  animation:loadingSweep 1.2s ease-in-out infinite;
+}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+padding:18px;border-bottom:1px solid var(--line)}
+.stat{padding:13px;background:#f7f9fc;border-radius:11px}
+.stat-label{font-size:10px;color:var(--muted);font-weight:800;
+text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-size:24px;font-weight:800;margin-top:7px}
+.blue-text{color:var(--blue)}.green-text{color:var(--green)}
+.red-text{color:var(--red)}
+.results-tools{padding:17px 20px 0;font-size:12px;color:var(--muted)}
+.tablewrap{padding:10px 15px 20px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:320px}
+th{text-align:left;font-size:10px;color:#7b899d;
+text-transform:uppercase;letter-spacing:.8px;padding:12px 8px;
+border-bottom:1px solid var(--line)}
+td{font-size:12px;padding:13px 8px;border-bottom:1px solid #edf1f6;
+overflow-wrap:anywhere}
+.empty{text-align:center;color:#8491a5;padding:35px 10px;line-height:1.7}
+.pred{display:inline-flex;align-items:center;gap:6px;
+border-radius:7px;padding:6px 8px;font-weight:800;font-size:11px}
 .pred.healthy{background:#e6f7f0;color:#11785f}
 .pred.tumor{background:#fff0f0;color:#b63f4d}
 .pred.error{background:#f1f3f7;color:#6a7485}
-.pred-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
-.status-text{color:var(--muted);font-size:11px}
-.footnote{display:flex;gap:12px;align-items:flex-start;background:#fff9e9;border:1px solid #f1e2b6;color:#74602a;border-radius:13px;padding:14px 16px;margin-top:20px;font-size:11px;line-height:1.6}
-.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px;color:#8a96a8;font-size:11px}
-.footer strong{color:#5c6b81}
-@media(max-width:850px){.layout{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.container{padding:25px 15px 36px}.topbar{padding:0 17px}.topright .label{display:none}}
-@media(max-width:480px){.cardbody{padding:16px}.cardhead{padding:17px}.stats{padding:13px;gap:7px}.stat{padding:10px}.stat-value{font-size:20px}.results-tools{padding:14px 14px 0}.tablewrap{padding:8px 12px 14px}.topbar{min-height:64px}}
+.pred-dot{width:6px;height:6px;background:currentColor;border-radius:50%}
+.footnote{background:#fff9e9;border:1px solid #f1e2b6;
+color:#74602a;border-radius:12px;padding:15px;margin-top:20px;
+font-size:11px;line-height:1.7}
+.footer{margin-top:20px;color:#8a96a8;font-size:11px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.container{padding:25px 14px}}
 </style>
 </head>
+
 <body>
 <header class="topbar">
   <div class="brand">
-    <div class="brandmark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M12 3v18M4.8 7.2l14.4 9.6M4.8 16.8l14.4-9.6"/><circle cx="12" cy="12" r="8.7"/></svg>
-    </div>
-    <div>NeuroSight<small>Brain CT Research Lab</small></div>
+    NeuroSight
+    <small>Brain CT Research Lab</small>
   </div>
-  <div class="topright"><span class="live-dot"></span><span class="label">Browser inference</span><span>·</span><span>ViT model</span></div>
+  <div class="top-status"><span class="dot"></span>Browser-based AI · ViT</div>
 </header>
 
 <main class="container">
   <section class="hero">
-    <div>
-      <div class="eyebrow">Clinical decision support · Research prototype</div>
-      <h1>Brain CT image analysis</h1>
-      <p>Batch classification powered by a fine-tuned Vision Transformer. Upload multiple CT images, review per-image outputs, and export your research results.</p>
-    </div>
-    <div class="research-pill">● Research use only</div>
+    <div class="eyebrow">Clinical decision support · Research prototype</div>
+    <h1>Brain CT image analysis</h1>
+    <p>Upload multiple brain CT images, run your fine-tuned Vision Transformer, review per-image predictions, and export your research results.</p>
   </section>
 
   <section class="layout">
     <article class="card">
-      <div class="cardhead"><h2>Image workspace</h2><span class="step">STEP 01</span></div>
+      <div class="cardhead">
+        <h2>Image workspace</h2><span class="step">STEP 01</span>
+      </div>
       <div class="cardbody">
         <div id="dropzone" class="dropzone">
-          <div class="upload-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
-          </div>
+          <div class="upload-icon">⇧</div>
           <h3>Upload CT images</h3>
-          <p>Drag and drop files here, or browse from your device.<br>PNG, JPG, JPEG, or WebP · Select multiple images</p>
-          <button id="browse" class="btn btn-primary" type="button">Browse images</button>
-          <input id="files" class="fileinput" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+          <p>Drag and drop images here or browse your device.<br>
+          PNG, JPG, JPEG or WebP · Multiple images supported</p>
+          <button id="browse" class="btn primary" type="button">Browse images</button>
+          <input id="files" class="fileinput" type="file"
+                 accept="image/png,image/jpeg,image/webp" multiple>
         </div>
 
         <div class="file-summary">
           <span id="selection">No images selected</span>
-          <button id="clear" class="btn btn-outline" type="button" style="padding:6px 9px">Clear all</button>
+          <button id="clear" class="btn outline" type="button">Clear all</button>
         </div>
-        <div id="filelist" class="file-list"><div>Your selected images will appear here.</div></div>
+        <div id="filelist" class="file-list">
+          <div style="font-size:12px;color:#8491a5">Your selected images will appear here.</div>
+        </div>
 
         <div class="actions">
-          <button id="run" class="btn btn-primary" disabled>Run batch analysis →</button>
-          <button id="csv" class="btn btn-secondary" disabled>Export CSV</button>
+          <button id="run" class="btn primary" disabled>Run batch analysis →</button>
+          <button id="csv" class="btn secondary" disabled>Export CSV</button>
         </div>
 
-        <div id="statusbox" class="statusbox"><span class="statusdot"></span><span id="status">Initializing browser inference engine…</span></div>
-        <div id="progressTrack" class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+        <div id="statusbox" class="statusbox">
+          <span class="statusdot"></span>
+          <span id="status">Initializing AI inference engine…</span>
+        </div>
+        <div id="progressTrack" class="progress-track" role="progressbar"
+             aria-label="Model loading animation">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
       </div>
     </article>
 
     <article class="card">
-      <div class="cardhead"><h2>Analysis overview</h2><span class="step">STEP 02</span></div>
-      <div class="stats">
-        <div class="stat"><div class="stat-label">Selected</div><div id="statSelected" class="stat-value blue">0</div></div>
-        <div class="stat"><div class="stat-label">Completed</div><div id="statDone" class="stat-value green">0</div></div>
-        <div class="stat"><div class="stat-label">Errors</div><div id="statErrors" class="stat-value red">0</div></div>
+      <div class="cardhead">
+        <h2>Analysis overview</h2><span class="step">STEP 02</span>
       </div>
-      <div class="results-tools"><p>Per-image classification results</p><span class="step">LIVE RESULTS</span></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Selected</div>
+          <div id="statSelected" class="stat-value blue-text">0</div></div>
+        <div class="stat"><div class="stat-label">Completed</div>
+          <div id="statDone" class="stat-value green-text">0</div></div>
+        <div class="stat"><div class="stat-label">Errors</div>
+          <div id="statErrors" class="stat-value red-text">0</div></div>
+      </div>
+      <div class="results-tools">Per-image classification results</div>
       <div class="tablewrap">
         <table>
           <thead><tr><th>Image</th><th>Prediction</th><th>Status</th></tr></thead>
-          <tbody id="results"><tr><td colspan="3" class="empty">No results yet<br>Upload images and start batch analysis.</td></tr></tbody>
+          <tbody id="results">
+            <tr><td colspan="3" class="empty">No results yet.<br>Upload images and start analysis.</td></tr>
+          </tbody>
         </table>
       </div>
     </article>
   </section>
 
   <div class="footnote">
-    <div><strong>Research disclaimer.</strong> This prototype is intended for academic demonstration and research only. It is not a medical device, does not provide a diagnosis, and must not be used to guide clinical decisions. Model predictions may be incorrect.</div>
+    <strong>Research disclaimer:</strong> This prototype is intended for academic demonstration and research only. It is not a medical device, does not provide a diagnosis, and must not be used to guide clinical decisions. Model predictions may be incorrect.
   </div>
-  <div class="footer"><span><strong>NeuroSight</strong> · Vision Transformer research interface</span><span>Images are processed in your browser after the model loads.</span></div>
+  <div class="footer">NeuroSight · Vision Transformer research interface · Browser-based inference</div>
 </main>
 
 <script>
-const MODEL_URL="https://huggingface.co/nakshatrika/brain-tumor-vit-ct/resolve/main/model.onnx";
+const MODEL_URL =
+  "https://huggingface.co/nakshatrika/brain-tumor-vit-ct/resolve/main/model.onnx";
 
-let session=null;
-let selectedFiles=[];
-let results=[];
-let busy=false;
+let session = null;
+let selectedFiles = [];
+let results = [];
+let busy = false;
 
-const $=id=>document.getElementById(id);
-const filesInput=$("files");
-const dropzone=$("dropzone");
-const statusBox=$("statusbox");
+const $ = id => document.getElementById(id);
+const filesInput = $("files");
+const dropzone = $("dropzone");
 
-function setStatus(message,type=""){
-  $("status").textContent=message;
-  statusBox.className="statusbox"+(type?" "+type:"");
+function setStatus(message, type = "") {
+  $("status").textContent = message;
+  $("statusbox").className = "statusbox" + (type ? " " + type : "");
 }
 
-function updateStats(){
-  $("statSelected").textContent=selectedFiles.length;
-  $("statDone").textContent=results.filter(r=>r.status==="Complete").length;
-  $("statErrors").textContent=results.filter(r=>r.status!=="Complete").length;
-  $("selection").textContent=selectedFiles.length
-    ?`${selectedFiles.length} image${selectedFiles.length===1?"":"s"} selected`
-    :"No images selected";
-  $("run").disabled=!session||busy||!selectedFiles.length;
-  $("csv").disabled=busy||!results.length;
-  $("browse").disabled=busy;
-  $("clear").disabled=busy;
+function setLoadingAnimation(active) {
+  const track = $("progressTrack");
+  track.style.display = active ? "block" : "none";
+  track.classList.toggle("loading", active);
+  if (!active) $("progressFill").style.width = "0%";
 }
 
-function formatBytes(n){
-  if(n<1024)return n+" B";
-  if(n<1048576)return (n/1024).toFixed(0)+" KB";
-  return (n/1048576).toFixed(1)+" MB";
+function updateStats() {
+  $("statSelected").textContent = selectedFiles.length;
+  $("statDone").textContent =
+    results.filter(r => r.status === "Complete").length;
+  $("statErrors").textContent =
+    results.filter(r => r.status !== "Complete").length;
+
+  $("selection").textContent = selectedFiles.length
+    ? `${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"} selected`
+    : "No images selected";
+
+  $("run").disabled = !session || busy || !selectedFiles.length;
+  $("csv").disabled = busy || !results.length;
+  $("browse").disabled = busy;
+  $("clear").disabled = busy;
 }
 
-function chooseFiles(list){
-  const accepted=Array.from(list).filter(f=>
-    /^image\/(png|jpeg|webp)$/.test(f.type)
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1048576) return (bytes / 1024).toFixed(0) + " KB";
+  return (bytes / 1048576).toFixed(1) + " MB";
+}
+
+function chooseFiles(fileList) {
+  if (busy) return;
+
+  const all = Array.from(fileList);
+  selectedFiles = all.filter(file =>
+    /^image\/(png|jpeg|webp)$/.test(file.type)
   );
-  selectedFiles=accepted;
-  results=[];
+
+  results = [];
   renderFiles();
   renderResults();
   updateStats();
 
-  if(list.length&&!accepted.length){
-    setStatus("Please select PNG, JPG, JPEG, or WebP image files.","err");
-  }else{
-    setStatus(session?"Ready to analyze selected images.":"Waiting for the model to load.");
+  if (all.length && !selectedFiles.length) {
+    setStatus("Choose PNG, JPG, JPEG or WebP image files.", "err");
+  } else if (all.length !== selectedFiles.length) {
+    setStatus("Unsupported files were skipped. Supported formats: PNG, JPG, JPEG and WebP.", "err");
+  } else {
+    setStatus(session ? "Model ready. You can run the analysis." :
+      "Your images are selected. Waiting for the model to load.");
   }
 }
 
-function renderFiles(){
-  const box=$("filelist");
-  box.innerHTML="";
+function renderFiles() {
+  const box = $("filelist");
+  box.innerHTML = "";
 
-  if(!selectedFiles.length){
-    box.textContent="Your selected images will appear here.";
+  if (!selectedFiles.length) {
+    const empty = document.createElement("div");
+    empty.style.cssText = "font-size:12px;color:#8491a5";
+    empty.textContent = "Your selected images will appear here.";
+    box.appendChild(empty);
     return;
   }
 
-  selectedFiles.forEach((file,i)=>{
-    const row=document.createElement("div");
-    row.className="fileitem";
-    row.innerHTML=`
-      <div class="fileicon">▧</div>
-      <div class="filemeta">
-        <div class="filename"></div>
-        <div class="filesize"></div>
-      </div>
-      <span class="filebadge"></span>`;
+  selectedFiles.forEach((file, i) => {
+    const row = document.createElement("div");
+    row.className = "fileitem";
 
-    row.querySelector(".filename").textContent=file.name;
-    row.querySelector(".filesize").textContent=formatBytes(file.size);
-    row.querySelector(".filebadge").textContent=
-      "IMAGE "+String(i+1).padStart(2,"0");
+    const icon = document.createElement("div");
+    icon.textContent = "▧";
 
+    const meta = document.createElement("div");
+    meta.className = "filemeta";
+
+    const name = document.createElement("div");
+    name.className = "filename";
+    name.textContent = file.name;
+
+    const size = document.createElement("div");
+    size.className = "filesize";
+    size.textContent = formatBytes(file.size);
+
+    const badge = document.createElement("span");
+    badge.className = "filebadge";
+    badge.textContent = "IMAGE " + String(i + 1).padStart(2, "0");
+
+    meta.append(name, size);
+    row.append(icon, meta, badge);
     box.appendChild(row);
   });
 }
 
-function renderResults(){
-  const body=$("results");
-  body.innerHTML="";
+function renderResults() {
+  const body = $("results");
+  body.innerHTML = "";
 
-  if(!results.length){
-    body.innerHTML='<tr><td colspan="3" class="empty">No results yet<br>Upload images and start batch analysis.</td></tr>';
+  if (!results.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 3;
+    td.className = "empty";
+    td.innerHTML = "No results yet.<br>Upload images and start analysis.";
+    tr.appendChild(td);
+    body.appendChild(tr);
     updateStats();
     return;
   }
 
-  results.forEach(r=>{
-    const tr=document.createElement("tr");
+  results.forEach(r => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    name.textContent = r.name;
 
-    const name=document.createElement("td");
-    name.textContent=r.name;
-    name.title=r.name;
+    const predCell = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = "pred " +
+      (r.status !== "Complete" ? "error" : r.prediction.toLowerCase());
 
-    const pred=document.createElement("td");
-    const badge=document.createElement("span");
-    badge.className="pred "+(
-      r.status!=="Complete"?"error":r.prediction.toLowerCase()
-    );
-    badge.innerHTML='<span class="pred-dot"></span>';
-    badge.appendChild(document.createTextNode(r.prediction));
-    pred.appendChild(badge);
+    const dot = document.createElement("span");
+    dot.className = "pred-dot";
+    badge.append(dot, document.createTextNode(r.prediction));
+    predCell.appendChild(badge);
 
-    const st=document.createElement("td");
-    st.className="status-text";
-    st.textContent=r.status;
+    const statusCell = document.createElement("td");
+    statusCell.textContent = r.status;
 
-    tr.append(name,pred,st);
+    tr.append(name, predCell, statusCell);
     body.appendChild(tr);
   });
 
   updateStats();
 }
 
-async function loadModel(){
-  setStatus("Loading the model from Hugging Face. The first load may take a few minutes…");
+async function loadModel() {
+  session = null;
+  $("run").disabled = true;
+  $("browse").disabled = true;
 
-  try{
-    session=await ort.InferenceSession.create(MODEL_URL,{
-      executionProviders:["wasm"]
-    });
-    setStatus("Model loaded successfully. Select CT images to begin.","ok");
-  }catch(e){
-    setStatus("Model could not be loaded: "+e.message+" Check the network and model URL.","err");
-  }
-
-  updateStats();
-}
-
-
-async function loadModel(){
-  const runButton = $("run");
-  const browseButton = $("browse");
-
-  runButton.disabled = true;
-  browseButton.disabled = true;
-
+  setLoadingAnimation(true);
   setStatus(
-    "Loading AI model… The first download may take a minute because the model is approximately 327 MB."
+    "Loading the AI model from Hugging Face. The first download may take a minute because the model is approximately 327 MB."
   );
 
-  $("progressTrack").style.display = "block";
-  $("progressFill").style.width = "25%";
-
   try {
+    if (!window.ort) {
+      throw new Error("ONNX Runtime Web did not load. Check your internet connection.");
+    }
+
     setStatus("Downloading and initializing the Vision Transformer…");
 
     session = await ort.InferenceSession.create(MODEL_URL, {
       executionProviders: ["wasm"]
     });
 
+    if (!session.inputNames.length || !session.outputNames.length) {
+      throw new Error("The model loaded but its input/output information is missing.");
+    }
+
     $("progressFill").style.width = "100%";
     setStatus(
-      "Model loaded successfully! Upload brain CT images to begin analysis.",
+      "Model loaded successfully! Select CT images to begin analysis.",
       "ok"
     );
-  } catch (e) {
+  } catch (error) {
     session = null;
     setStatus(
-      "Model failed to load. Check your internet connection and refresh the page. Details: " + e.message,
+      "Model failed to load. Check your connection and refresh the page. Details: " +
+      error.message,
       "err"
     );
   } finally {
-    browseButton.disabled = false;
+    setLoadingAnimation(false);
+    $("browse").disabled = false;
     updateStats();
   }
 }
 
+async function preprocess(file) {
+  const bitmap = await createImageBitmap(file);
 
-    // Match the saved ViT processor: mean=[0.5,0.5,0.5],
-    // std=[0.5,0.5,0.5].
-    for(let i=0;i<plane;i++){
-      for(let c=0;c<3;c++){
-        input[c*plane+i]=(pixels[i*4+c]/255-0.5)/0.5;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 224;
+    canvas.height = 224;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(bitmap, 0, 0, 224, 224);
+
+    const pixels = ctx.getImageData(0, 0, 224, 224).data;
+    const plane = 224 * 224;
+    const input = new Float32Array(3 * plane);
+
+    // Match the saved ViT preprocessing configuration:
+    // mean = [0.5, 0.5, 0.5], std = [0.5, 0.5, 0.5].
+    for (let i = 0; i < plane; i++) {
+      for (let c = 0; c < 3; c++) {
+        input[c * plane + i] = (pixels[i * 4 + c] / 255 - 0.5) / 0.5;
       }
     }
 
-    return new ort.Tensor("float32",input,[1,3,224,224]);
-  }finally{
+    return new ort.Tensor("float32", input, [1, 3, 224, 224]);
+  } finally {
     bitmap.close();
   }
 }
 
-$("browse").addEventListener("click",()=>filesInput.click());
+$("browse").addEventListener("click", () => filesInput.click());
 
-filesInput.addEventListener("change",e=>{
-  chooseFiles(e.target.files);
+filesInput.addEventListener("change", event => {
+  chooseFiles(event.target.files);
 });
 
-$("clear").addEventListener("click",()=>{
-  if(busy)return;
+$("clear").addEventListener("click", () => {
+  if (busy) return;
 
-  filesInput.value="";
-  selectedFiles=[];
-  results=[];
+  filesInput.value = "";
+  selectedFiles = [];
+  results = [];
 
   renderFiles();
   renderResults();
-  $("progressTrack").style.display="none";
-
-  setStatus(session?"Model ready for your next batch.":"Waiting for model to load.");
+  setStatus(session ? "Model ready for your next batch." :
+    "Waiting for the model to load.");
   updateStats();
 });
 
-dropzone.addEventListener("dragover",e=>{
-  e.preventDefault();
+dropzone.addEventListener("dragover", event => {
+  event.preventDefault();
   dropzone.classList.add("drag");
 });
 
-dropzone.addEventListener("dragleave",()=>{
+dropzone.addEventListener("dragleave", () => {
   dropzone.classList.remove("drag");
 });
 
-dropzone.addEventListener("drop",e=>{
-  e.preventDefault();
+dropzone.addEventListener("drop", event => {
+  event.preventDefault();
   dropzone.classList.remove("drag");
-
-  if(!busy)chooseFiles(e.dataTransfer.files);
+  if (!busy) chooseFiles(event.dataTransfer.files);
 });
 
-$("run").addEventListener("click",async()=>{
-  if(!session||busy||!selectedFiles.length)return;
+$("run").addEventListener("click", async () => {
+  if (!session || busy || !selectedFiles.length) return;
 
-  busy=true;
-  results=[];
-  $("progressTrack").style.display="block";
-  $("progressFill").style.width="0%";
+  busy = true;
+  results = [];
+  setLoadingAnimation(false);
+  $("progressTrack").style.display = "block";
+  $("progressFill").style.width = "0%";
   updateStats();
 
-  try{
-    for(let i=0;i<selectedFiles.length;i++){
-      const file=selectedFiles[i];
+  try {
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
 
-      setStatus(`Analyzing image ${i+1} of ${selectedFiles.length}: ${file.name}`);
+      setStatus(`Analyzing image ${i + 1} of ${selectedFiles.length}: ${file.name}`);
 
-      try{
-        const tensor=await preprocess(file);
-        const outputs=await session.run({
-          [session.inputNames[0]]:tensor
+      try {
+        const tensor = await preprocess(file);
+        const output = await session.run({
+          [session.inputNames[0]]: tensor
         });
 
-        const logits=outputs[session.outputNames[0]].data;
+        const logits = output[session.outputNames[0]].data;
 
-        if(logits.length<2){
+        if (logits.length < 2) {
           throw new Error("Model returned fewer than two class logits.");
         }
 
         // Class order: 0 = Healthy, 1 = Tumor.
-        const prediction=logits[1]>logits[0]?"Tumor":"Healthy";
+        const prediction = logits[1] > logits[0] ? "Tumor" : "Healthy";
 
         results.push({
-          name:file.name,
+          name: file.name,
           prediction,
-          healthyLogit:Number(logits[0]),
-          tumorLogit:Number(logits[1]),
-          status:"Complete"
+          healthyLogit: Number(logits[0]),
+          tumorLogit: Number(logits[1]),
+          status: "Complete"
         });
-      }catch(err){
+      } catch (error) {
         results.push({
-          name:file.name,
-          prediction:"Unavailable",
-          healthyLogit:"",
-          tumorLogit:"",
-          status:"Error: "+err.message
+          name: file.name,
+          prediction: "Unavailable",
+          healthyLogit: "",
+          tumorLogit: "",
+          status: "Error: " + error.message
         });
       }
 
       renderResults();
-      $("progressFill").style.width=
-        ((i+1)/selectedFiles.length*100)+"%";
+      $("progressFill").style.width =
+        ((i + 1) / selectedFiles.length * 100) + "%";
     }
 
-    const done=results.filter(r=>r.status==="Complete").length;
+    const completed = results.filter(r => r.status === "Complete").length;
 
     setStatus(
-      `Batch complete · ${done} of ${selectedFiles.length} images analyzed`+
-      (done<selectedFiles.length?"; some images need attention.":"."),
-      done===selectedFiles.length?"ok":"err"
+      `Batch complete: ${completed} of ${selectedFiles.length} images analyzed.` +
+      (completed < selectedFiles.length ? " Some images need attention." : ""),
+      completed === selectedFiles.length ? "ok" : "err"
     );
-  }finally{
-    busy=false;
+  } finally {
+    busy = false;
     updateStats();
   }
 });
 
-$("csv").addEventListener("click",()=>{
-  const data=[
-    ["Image","Prediction","Healthy logit","Tumor logit","Status"],
-    ...results.map(r=>[
-      r.name,r.prediction,r.healthyLogit,r.tumorLogit,r.status
+$("csv").addEventListener("click", () => {
+  const rows = [
+    ["Image", "Prediction", "Healthy logit", "Tumor logit", "Status"],
+    ...results.map(r => [
+      r.name, r.prediction, r.healthyLogit, r.tumorLogit, r.status
     ])
   ];
 
-  const csv=data.map(row=>
-    row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")
+  const csv = rows.map(row =>
+    row.map(value =>
+      '"' + String(value ?? "").replace(/"/g, '""') + '"'
+    ).join(",")
   ).join("\r\n");
 
-  const url=URL.createObjectURL(
-    new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"})
+  const url = URL.createObjectURL(
+    new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" })
   );
 
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="neurosight_vit_results.csv";
-  a.click();
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "neurosight_vit_results.csv";
+  link.click();
 
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
 loadModel();
