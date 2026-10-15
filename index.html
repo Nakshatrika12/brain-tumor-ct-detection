@@ -386,4 +386,126 @@
     }
 
     footer {
-      text-align
+      text-align: center;
+      color: #7c879a;
+      font-size: 11px;
+      line-height: 1.8;
+      padding: 25px 10px 0;
+    }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { padding: 15px; }
+      .brand h1 { font-size: 18px; }
+      .research-badge { display: none; }
+      .container { padding: 25px 14px 35px; }
+      .stats { gap: 9px; }
+      .stat { padding: 13px; }
+      .stat-value { font-size: 22px; }
+      .stat-label { font-size: 11px; }
+      .panel { padding: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🧠</div>
+      <div>
+        <h1>NeuroSight</h1>
+        <p>Brain CT Research Dashboard</p>
+      </div>
+    </div>
+    <div class="research-badge">AI Research Prototype</div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">Computer Vision · Medical Imaging Research</div>
+      <h2>Brain CT Image Analysis</h2>
+      <p>
+        Explore a Vision Transformer (ViT) model trained to classify brain CT
+        images into Healthy and Tumor categories. Upload one or more images
+        to run an experimental model prediction.
+      </p>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <span class="stat-label">Images selected</span>
+        <strong class="stat-value" id="selectedCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Images analyzed</span>
+        <strong class="stat-value" id="analyzedCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Tumor predictions</span>
+        <strong class="stat-value" id="tumorCount">0</strong>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <h3>Upload CT images</h3>
+        <p class="panel-description">
+          Choose JPG, JPEG, PNG, or WEBP images. Multiple images can be
+          selected at once. Preliminary screening checks some basic image
+          characteristics but cannot confirm that an image is a brain CT.
+        </p>
+
+        <div class="dropzone" id="dropzone" role="button" tabindex="0"
+             aria-label="Choose brain CT images">
+          <div class="upload-icon">🩻</div>
+          <strong>Drop your CT images here</strong>
+          <small>or select image files from your device</small>
+          <button class="button button-primary" id="browse" type="button">
+            Choose images
+          </button>
+          <input id="fileInput" type="file"
+                 accept="image/jpeg,image/png,image/webp" multiple>
+        </div>
+
+        <div class="selected-files" id="selectedFiles">
+          No images selected yet.
+        </div>
+
+        <div class="button-row">
+          <button class="button button-primary" id="run" type="button" disabled>
+            Analyze images
+          </button>
+          <button class="button button-secondary" id="clear" type="button">
+            Clear all
+          </button>
+        </div>
+
+        <div class="progress-track" id="progressTrack" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="statusText">
+            The dashboard is ready. The AI runtime and model will load in the background.
+          </span>
+        </div>
+
+        <div class="model-info">
+          <h4>Model information</h4>
+          <div class="info-line"><span>Architecture</span><span>Vision Transformer (ViT)</span></div>
+          <div class="info-line"><span>Input size</span><span>224 × 224</span></div>
+          <div class="info-line"><span>Input type</span><span>Brain CT image</span></div>
+          <div class="info-line"><span>Model format</span><span>ONNX</span></div>
+          <div class="info-line"><span>Screening</span><span>Preliminary only</span></div>
+          <div class="info-line"><span>Inference</span><span id="model
