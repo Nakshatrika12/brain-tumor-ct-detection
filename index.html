@@ -932,24 +932,17 @@
     }
 
     
+
 async function validateBrainCTImage(file) {
-  // Basic file checks
   if (!file || !file.type.startsWith("image/")) {
     return {
       valid: false,
-      message: "Invalid input. Please upload an image file."
+      message: "Invalid Input — Please upload a brain CT image."
     };
   }
 
   try {
     const image = await loadImage(file);
-
-    if (image.naturalWidth < 80 || image.naturalHeight < 80) {
-      return {
-        valid: false,
-        message: "Invalid input. Image resolution is too small."
-      };
-    }
 
     const canvas = document.createElement("canvas");
     canvas.width = 128;
@@ -960,66 +953,73 @@ async function validateBrainCTImage(file) {
     });
 
     if (!ctx) {
-      return {
-        valid: false,
-        message: "Unable to validate this image."
-      };
+      throw new Error("Could not inspect the image.");
     }
 
     ctx.drawImage(image, 0, 0, 128, 128);
 
     const pixels = ctx.getImageData(0, 0, 128, 128).data;
-    const pixelCount = 128 * 128;
+    const totalPixels = 128 * 128;
 
-    let chromaTotal = 0;
+    let chromaSum = 0;
     let colorfulPixels = 0;
-    let brightnessTotal = 0;
+    let brightnessSum = 0;
+    let darkPixels = 0;
 
     for (let i = 0; i < pixels.length; i += 4) {
       const r = pixels[i];
       const g = pixels[i + 1];
       const b = pixels[i + 2];
 
-      const maxChannel = Math.max(r, g, b);
-      const minChannel = Math.min(r, g, b);
-      const chroma = maxChannel - minChannel;
+      const maxRGB = Math.max(r, g, b);
+      const minRGB = Math.min(r, g, b);
+      const chroma = maxRGB - minRGB;
+      const brightness = (r + g + b) / 3;
 
-      chromaTotal += chroma;
-      brightnessTotal += (r + g + b) / 3;
+      chromaSum += chroma;
+      brightnessSum += brightness;
 
       if (chroma > 25) colorfulPixels++;
+      if (brightness < 12) darkPixels++;
     }
 
-    const meanChroma = chromaTotal / pixelCount;
-    const colorfulFraction = colorfulPixels / pixelCount;
-    const meanBrightness = brightnessTotal / pixelCount;
+    const meanChroma = chromaSum / totalPixels;
+    const colorfulRatio = colorfulPixels / totalPixels;
+    const meanBrightness = brightnessSum / totalPixels;
+    const darkRatio = darkPixels / totalPixels;
 
-    // Reject strongly colored photos before model inference.
-    // This is a heuristic, NOT a reliable CT-image detector.
-    if (meanChroma > 22 && colorfulFraction > 0.25) {
+    // Reject typical colorful photos, such as many pictures of people or dogs.
+    if (meanChroma > 18 && colorfulRatio > 0.20) {
       return {
         valid: false,
         message:
-          "Invalid Input — This appears to be a color photo, not a typical brain CT image. Please upload a valid brain CT image."
+          "Invalid Input — This looks like a regular color photograph. Please upload a valid brain CT image."
       };
     }
 
+    // Reject completely black or nearly blank images.
     if (meanBrightness < 3) {
       return {
         valid: false,
         message:
-          "Invalid Input — The image appears blank or too dark. Please upload a valid brain CT image."
+          "Invalid Input — The image appears blank. Please upload a valid brain CT image."
       };
     }
 
-    return { valid: true, message: "Image passed the preliminary input check." };
+    // These image statistics are only a preliminary filter.
+    // They cannot prove that an image is a brain CT scan.
+    return {
+      valid: true,
+      message: "Preliminary image checks passed."
+    };
 
   } catch (error) {
-    console.error("Image validation error:", error);
+    console.error("Input validation failed:", error);
 
     return {
       valid: false,
-      message: "Invalid Input — This image could not be read. Please upload another image."
+      message:
+        "Invalid Input — Could not read this image. Please upload another image."
     };
   }
 }
