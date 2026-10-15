@@ -921,6 +921,100 @@
       );
     }
 
+    
+async function validateBrainCTImage(file) {
+  // Basic file checks
+  if (!file || !file.type.startsWith("image/")) {
+    return {
+      valid: false,
+      message: "Invalid input. Please upload an image file."
+    };
+  }
+
+  try {
+    const image = await loadImage(file);
+
+    if (image.naturalWidth < 80 || image.naturalHeight < 80) {
+      return {
+        valid: false,
+        message: "Invalid input. Image resolution is too small."
+      };
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true
+    });
+
+    if (!ctx) {
+      return {
+        valid: false,
+        message: "Unable to validate this image."
+      };
+    }
+
+    ctx.drawImage(image, 0, 0, 128, 128);
+
+    const pixels = ctx.getImageData(0, 0, 128, 128).data;
+    const pixelCount = 128 * 128;
+
+    let chromaTotal = 0;
+    let colorfulPixels = 0;
+    let brightnessTotal = 0;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i];
+      const g = pixels[i + 1];
+      const b = pixels[i + 2];
+
+      const maxChannel = Math.max(r, g, b);
+      const minChannel = Math.min(r, g, b);
+      const chroma = maxChannel - minChannel;
+
+      chromaTotal += chroma;
+      brightnessTotal += (r + g + b) / 3;
+
+      if (chroma > 25) colorfulPixels++;
+    }
+
+    const meanChroma = chromaTotal / pixelCount;
+    const colorfulFraction = colorfulPixels / pixelCount;
+    const meanBrightness = brightnessTotal / pixelCount;
+
+    // Reject strongly colored photos before model inference.
+    // This is a heuristic, NOT a reliable CT-image detector.
+    if (meanChroma > 22 && colorfulFraction > 0.25) {
+      return {
+        valid: false,
+        message:
+          "Invalid Input — This appears to be a color photo, not a typical brain CT image. Please upload a valid brain CT image."
+      };
+    }
+
+    if (meanBrightness < 3) {
+      return {
+        valid: false,
+        message:
+          "Invalid Input — The image appears blank or too dark. Please upload a valid brain CT image."
+      };
+    }
+
+    return { valid: true, message: "Image passed the preliminary input check." };
+
+  } catch (error) {
+    console.error("Image validation error:", error);
+
+    return {
+      valid: false,
+      message: "Invalid Input — This image could not be read. Please upload another image."
+    };
+  }
+}
+
+
     async function analyzeOne(item, index) {
       results[index].status = "Processing";
       renderResults();
