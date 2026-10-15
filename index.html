@@ -1,0 +1,119 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain CT Research Demo — ViT</title>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 20px; color: #172033; }
+    main { border: 1px solid #dce2ec; border-radius: 16px; padding: 24px; }
+    button { padding: 12px 18px; cursor: pointer; margin-top: 12px; }
+    img { display: block; max-width: 100%; max-height: 320px; margin-top: 16px; }
+    #status, #result { margin-top: 16px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Brain CT Classification</h1>
+  <p>Research demonstration using a fine-tuned Vision Transformer (ViT).</p>
+  <p>Select a CT image to test the model in your browser.</p>
+  <input id="file" type="file" accept="image/*">
+  <img id="preview" alt="Selected image preview" hidden>
+  <button id="run" disabled>Load model first</button>
+  <p id="status">Loading ONNX model…</p>
+  <p id="result"></p>
+  <small>Research use only. Not a medical diagnosis or a substitute for professional medical advice.</small>
+</main>
+<script>
+const MODEL_URL =
+  "https://huggingface.co/nakshatrika/brain-tumor-vit-ct/resolve/main/model.onnx";
+
+let session;
+const fileInput = document.getElementById("file");
+const preview = document.getElementById("preview");
+const runButton = document.getElementById("run");
+const status = document.getElementById("status");
+const result = document.getElementById("result");
+
+async function loadModel() {
+  try {
+    // WASM is the browser-compatible execution provider.
+    session = await ort.InferenceSession.create(MODEL_URL, {
+      executionProviders: ["wasm"]
+    });
+    status.textContent = "Model loaded. Select a CT image.";
+    runButton.disabled = false;
+    runButton.textContent = "Classify image";
+  } catch (error) {
+    status.textContent =
+      "Could not load the model. Check the model URL, network access and browser console.\n" +
+      error.message;
+  }
+}
+
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
+  preview.hidden = false;
+  result.textContent = "";
+});
+
+runButton.addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  if (!file || !session) return;
+
+  runButton.disabled = true;
+  status.textContent = "Running inference…";
+  result.textContent = "";
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = 224;
+    canvas.height = 224;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(bitmap, 0, 0, 224, 224);
+    const pixels = ctx.getImageData(0, 0, 224, 224).data;
+
+    // ImageNet normalization used by the standard ViT processor.
+    const mean = [0.485, 0.456, 0.406];
+    const std = [0.229, 0.224, 0.225];
+    const input = new Float32Array(3 * 224 * 224);
+
+    for (let y = 0; y < 224; y++) {
+      for (let x = 0; x < 224; x++) {
+        const p = (y * 224 + x) * 4;
+        const i = y * 224 + x;
+        for (let c = 0; c < 3; c++) {
+          input[c * 224 * 224 + i] =
+            (pixels[p + c] / 255 - mean[c]) / std[c];
+        }
+      }
+    }
+
+    const inputName = session.inputNames[0];
+    const tensor = new ort.Tensor("float32", input, [1, 3, 224, 224]);
+    const outputs = await session.run({ [inputName]: tensor });
+    const logits = outputs[session.outputNames[0]].data;
+    const predicted = logits[1] > logits[0] ? "Tumor" : "Healthy";
+
+    result.textContent =
+      `Predicted class: ${predicted}\n` +
+      `Raw logits — Healthy: ${logits[0].toFixed(4)}, Tumor: ${logits[1].toFixed(4)}\n\n` +
+      "Research result only. Not a clinical diagnosis.";
+    status.textContent = "Inference completed.";
+  } catch (error) {
+    status.textContent = "Inference failed: " + error.message;
+  } finally {
+    runButton.disabled = false;
+  }
+});
+
+loadModel();
+</script>
+</body>
+</html>
+```
