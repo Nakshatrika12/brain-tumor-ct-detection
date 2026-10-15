@@ -370,6 +370,14 @@
       margin: 0;
     }
 
+    .pill.invalid {
+  background: #fff0f0;
+  color: #b42318;
+  white-space: normal;
+  line-height: 1.5;
+  border-radius: 8px;
+}
+
     .notice {
       margin-top: 20px;
       padding: 15px 17px;
@@ -631,9 +639,11 @@
       }
 
       body.innerHTML = results.map((r) => {
-        const badgeClass = r.prediction === "Healthy" ? "healthy" :
-          r.prediction === "Tumor" ? "tumor" : "pending";
-
+       const badgeClass =
+  r.prediction === "Healthy" ? "healthy" :
+  r.prediction === "Tumor" ? "tumor" :
+  r.prediction === "Invalid Input" || r.prediction === "Error"
+    ? "invalid" : "pending";
         return `
           <tr>
             <td>
@@ -1015,35 +1025,57 @@ async function validateBrainCTImage(file) {
 }
 
 
-    async function analyzeOne(item, index) {
-      results[index].status = "Processing";
-      renderResults();
+   
+async function analyzeOne(item, index) {
+  results[index].status = "Validating input";
+  renderResults();
 
-      try {
-        const tensor = await imageToTensor(item.file);
-        const output = await session.run({
-          [session.inputNames[0]]: tensor
-        });
+  try {
+    // Validate BEFORE sending the image to the AI model.
+    const validation = await validateBrainCTImage(item.file);
 
-        const logits = output[session.outputNames[0]].data;
-
-        if (!logits || logits.length < 2) {
-          throw new Error("Unexpected model output.");
-        }
-
-        results[index].healthyLogit = Number(logits[0]);
-        results[index].tumorLogit = Number(logits[1]);
-        results[index].prediction =
-          logits[1] > logits[0] ? "Tumor" : "Healthy";
-        results[index].status = "Complete";
-      } catch (error) {
-        console.error("Image analysis failed:", item.file.name, error);
-        results[index].status = "Error";
-        results[index].error = error.message;
-      }
+    if (!validation.valid) {
+      results[index].prediction = "Invalid Input";
+      results[index].healthyLogit = null;
+      results[index].tumorLogit = null;
+      results[index].status = validation.message;
 
       renderResults();
+      return;
     }
+
+    results[index].status = "Processing";
+    renderResults();
+
+    const tensor = await imageToTensor(item.file);
+
+    const output = await session.run({
+      [session.inputNames[0]]: tensor
+    });
+
+    const logits = output[session.outputNames[0]].data;
+
+    if (!logits || logits.length < 2) {
+      throw new Error("Unexpected model output.");
+    }
+
+    results[index].healthyLogit = Number(logits[0]);
+    results[index].tumorLogit = Number(logits[1]);
+
+    results[index].prediction =
+      logits[1] > logits[0] ? "Tumor" : "Healthy";
+
+    results[index].status = "Complete";
+
+  } catch (error) {
+    console.error("Image analysis failed:", item.file.name, error);
+
+    results[index].prediction = "Error";
+    results[index].status = error.message || "Analysis failed";
+  }
+
+  renderResults();
+}
 
     async function runAnalysis() {
       if (!session) {
