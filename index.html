@@ -297,22 +297,45 @@ async function loadModel(){
   updateStats();
 }
 
-async function preprocess(file){
-  const bitmap=await createImageBitmap(file);
 
-  try{
-    const canvas=document.createElement("canvas");
-    canvas.width=224;
-    canvas.height=224;
+async function loadModel(){
+  const runButton = $("run");
+  const browseButton = $("browse");
 
-    const ctx=canvas.getContext("2d",{willReadFrequently:true});
-    ctx.imageSmoothingEnabled=true;
-    ctx.imageSmoothingQuality="high";
-    ctx.drawImage(bitmap,0,0,224,224);
+  runButton.disabled = true;
+  browseButton.disabled = true;
 
-    const pixels=ctx.getImageData(0,0,224,224).data;
-    const plane=224*224;
-    const input=new Float32Array(3*plane);
+  setStatus(
+    "Loading AI model… The first download may take a minute because the model is approximately 327 MB."
+  );
+
+  $("progressTrack").style.display = "block";
+  $("progressFill").style.width = "25%";
+
+  try {
+    setStatus("Downloading and initializing the Vision Transformer…");
+
+    session = await ort.InferenceSession.create(MODEL_URL, {
+      executionProviders: ["wasm"]
+    });
+
+    $("progressFill").style.width = "100%";
+    setStatus(
+      "Model loaded successfully! Upload brain CT images to begin analysis.",
+      "ok"
+    );
+  } catch (e) {
+    session = null;
+    setStatus(
+      "Model failed to load. Check your internet connection and refresh the page. Details: " + e.message,
+      "err"
+    );
+  } finally {
+    browseButton.disabled = false;
+    updateStats();
+  }
+}
+
 
     // Match the saved ViT processor: mean=[0.5,0.5,0.5],
     // std=[0.5,0.5,0.5].
